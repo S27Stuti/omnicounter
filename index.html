@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniCounter — Modern & Elegant Counter</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <!-- App Wrapper -->
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="5" ry="5"></rect>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>OmniCounter</h1>
+          <div class="badge-row">
+            <span class="badge">Modern Edition</span>
+            <span id="serverStatusBadge" class="server-badge checking" title="Backend Server Status">
+              <span class="status-dot"></span>
+              <span id="serverStatusText">Connecting...</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Actions -->
+      <div class="header-actions">
+        <!-- Theme Dropdown / Toggle -->
+        <button id="themeToggleBtn" class="icon-btn" title="Toggle Theme (T)" aria-label="Toggle theme">
+          <svg id="themeIconSun" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+          <svg id="themeIconMoon" class="icon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- Sound Toggle -->
+        <button id="soundToggleBtn" class="icon-btn active" title="Sound Effects (M)" aria-label="Toggle sound">
+          <svg id="soundIconOn" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="soundIconOff" class="icon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <!-- Zen Mode -->
+        <button id="zenModeBtn" class="icon-btn" title="Zen Focus Mode (F)" aria-label="Zen mode">
+          <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+          </svg>
+        </button>
+
+        <!-- Shortcuts Help -->
+        <button id="shortcutsBtn" class="icon-btn" title="Keyboard Shortcuts (?)" aria-label="Shortcuts">
+          <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Multi-counter Tab bar -->
+    <div class="tabs-container">
+      <div class="tabs-scroll" id="countersTabsList">
+        <!-- Rendered dynamically by JS -->
+      </div>
+      <button id="newCounterBtn" class="btn btn-sm btn-ghost add-counter-btn" title="Add Counter">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>New</span>
+      </button>
+    </div>
+
+    <!-- Main Grid Content -->
+    <main class="main-content">
+      <!-- Left: Counter Hero Card -->
+      <section class="counter-card" id="mainCounterCard">
+        <!-- Card Top: Title & Options -->
+        <div class="card-meta">
+          <div class="counter-title-group">
+            <input type="text" id="counterTitleInput" class="counter-title-input" value="Primary Counter" maxlength="30" spellcheck="false" title="Click to rename counter">
+            <span class="edit-hint-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+            </span>
+          </div>
+          
+          <div class="card-controls">
+            <button id="undoBtn" class="btn btn-ghost btn-sm" title="Undo Last Change (Ctrl+Z / Z)" disabled>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 7v6h6"></path>
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+              </svg>
+              <span>Undo</span>
+            </button>
+            <button id="resetBtn" class="btn btn-ghost btn-sm danger-hover" title="Reset Counter (R)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              <span>Reset</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Center: Interactive Display with Radial Ring -->
+        <div class="counter-display-wrapper">
+          <svg class="progress-ring" viewBox="0 0 280 280">
+            <circle class="progress-ring-bg" cx="140" cy="140" r="126" stroke-width="10"></circle>
+            <circle id="progressRingBar" class="progress-ring-indicator" cx="140" cy="140" r="126" stroke-width="10"></circle>
+          </svg>
+
+          <div class="display-inner" id="counterClickArea">
+            <div class="value-container">
+              <div id="counterValue" class="counter-number">0</div>
+            </div>
+            <div class="target-status" id="targetStatusText">Target: 100</div>
+          </div>
+        </div>
+
+        <!-- Quick Jump / Multiplier Bar -->
+        <div class="step-selector-row">
+          <span class="step-label">Step Size:</span>
+          <div class="step-buttons" id="stepButtons">
+            <button class="step-btn active" data-step="1">1</button>
+            <button class="step-btn" data-step="5">5</button>
+            <button class="step-btn" data-step="10">10</button>
+            <button class="step-btn" data-step="50">50</button>
+            <button class="step-btn" data-step="100">100</button>
+          </div>
+        </div>
+
+        <!-- Main Trigger Buttons -->
+        <div class="action-buttons-grid">
+          <!-- Decrement Group -->
+          <div class="btn-subgroup">
+            <button id="decQuickBtn" class="btn btn-secondary quick-step-btn" title="Decrement -5">
+              -5
+            </button>
+            <button id="decBtn" class="btn btn-action btn-decrement" aria-label="Decrement value">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Increment Group -->
+          <div class="btn-subgroup">
+            <button id="incBtn" class="btn btn-action btn-increment" aria-label="Increment value">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+            <button id="incQuickBtn" class="btn btn-secondary quick-step-btn" title="Increment +5">
+              +5
+            </button>
+          </div>
+        </div>
+
+        <!-- Direct Edit / Set Value Trigger -->
+        <div class="card-footer-controls">
+          <button id="setSpecificValueBtn" class="btn btn-text btn-xs">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Set Custom Value
+          </button>
+          <button id="setTargetBtn" class="btn btn-text btn-xs">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+            Change Goal / Target
+          </button>
+        </div>
+      </section>
+
+      <!-- Right: Stats & Activity Drawer -->
+      <aside class="sidebar-panel">
+        <!-- Stats Overview Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Total Clicks</span>
+            <span class="stat-value" id="statTotalClicks">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Session Delta</span>
+            <span class="stat-value" id="statSessionDelta">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Peak Value</span>
+            <span class="stat-value" id="statPeakValue">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Progress</span>
+            <span class="stat-value" id="statProgressPercent">0%</span>
+          </div>
+        </div>
+
+        <!-- Activity Timeline -->
+        <div class="activity-panel">
+          <div class="activity-header">
+            <h3>Recent Activity</h3>
+            <button id="clearHistoryBtn" class="btn btn-text btn-xs danger-hover">Clear</button>
+          </div>
+          <ul class="activity-list" id="activityList">
+            <li class="empty-state">No counts recorded yet. Tap + or - to begin!</li>
+          </ul>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Modal: Set Custom Value -->
+  <dialog id="customValueDialog" class="modal">
+    <div class="modal-box">
+      <h3>Set Exact Value</h3>
+      <p class="modal-desc">Enter the numerical value you want to assign to this counter.</p>
+      <input type="number" id="customValueInput" class="modal-input" placeholder="e.g. 42" autofocus>
+      <div class="modal-actions">
+        <button id="cancelCustomValBtn" class="btn btn-secondary">Cancel</button>
+        <button id="saveCustomValBtn" class="btn btn-primary">Apply</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Modal: Set Target Goal -->
+  <dialog id="targetDialog" class="modal">
+    <div class="modal-box">
+      <h3>Set Target Goal</h3>
+      <p class="modal-desc">When this count is reached, a celebration animation will trigger!</p>
+      <input type="number" id="targetGoalInput" class="modal-input" placeholder="e.g. 100" min="1">
+      <div class="modal-actions">
+        <button id="cancelTargetBtn" class="btn btn-secondary">Cancel</button>
+        <button id="saveTargetBtn" class="btn btn-primary">Save Goal</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Modal: Keyboard Shortcuts Cheatsheet -->
+  <dialog id="shortcutsDialog" class="modal">
+    <div class="modal-box">
+      <h3>Keyboard Shortcuts</h3>
+      <div class="shortcuts-list">
+        <div class="shortcut-row">
+          <span class="keys"><kbd>Space</kbd> or <kbd>&uparrow;</kbd> or <kbd>+</kbd></span>
+          <span class="desc">Increment</span>
+        </div>
+        <div class="shortcut-row">
+          <span class="keys"><kbd>&downarrow;</kbd> or <kbd>-</kbd></span>
+          <span class="desc">Decrement</span>
+        </div>
+        <div class="shortcut-row">
+          <span class="keys"><kbd>R</kbd></span>
+          <span class="desc">Reset counter</span>
+        </div>
+        <div class="shortcut-row">
+          <span class="keys"><kbd>Z</kbd></span>
+          <span class="desc">Undo last action</span>
+        </div>
+        <div class="shortcut-row">
+          <span class="keys"><kbd>T</kbd></span>
+          <span class="desc">Toggle theme</span>
+        </div>
+        <div class="shortcut-row">
+          <span class="keys"><kbd>M</kbd></span>
+          <span class="desc">Toggle audio / mute</span>
+        </div>
+        <div class="shortcut-row">
+          <span class="keys"><kbd>F</kbd></span>
+          <span class="desc">Toggle Zen focus mode</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="closeShortcutsBtn" class="btn btn-primary">Got it</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+</body>
+</html>
+
